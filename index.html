@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Paste an email, SMS, or other message and preview its parsed JSON output."
+    />
+    <title>Message Parser</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="#" aria-label="Message Parser home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M7 5 2.5 12 7 19M17 5l4.5 7-4.5 7M14 3l-4 18" />
+            </svg>
+          </span>
+          <span>Message Parser</span>
+        </a>
+        <div class="header-actions">
+          <span class="status-pill"><span class="status-dot"></span><span id="parser-count">0 parsers</span></span>
+          <button class="header-add-button" id="header-add-parser" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12" /></svg>
+            Add parser
+          </button>
+        </div>
+      </header>
+
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">STRUCTURED DATA, INSTANTLY</p>
+        <h1 id="page-title">Turn messages into<br /><span>clean JSON.</span></h1>
+        <p class="hero-copy">
+          Paste an email, SMS, or any supported message below. We’ll inspect its
+          format and return structured data you can use.
+        </p>
+      </section>
+
+      <section class="parser-library" aria-labelledby="parser-library-title">
+        <div class="library-heading">
+          <span class="library-icon" aria-hidden="true">
+            <svg viewBox="0 0 20 20"><path d="M6 4 2.5 10 6 16M14 4l3.5 6-3.5 6M12 3 8 17" /></svg>
+          </span>
+          <div>
+            <h2 id="parser-library-title">Your parsers</h2>
+            <p id="library-description">Add a parser to start recognizing messages.</p>
+          </div>
+        </div>
+        <div class="parser-chips" id="parser-chips"></div>
+        <button class="library-add-button" id="library-add-parser" type="button">
+          <span>+</span> New parser
+        </button>
+      </section>
+
+      <section class="workspace" aria-label="Message parser workspace">
+        <form class="input-panel" id="parser-form">
+          <div class="panel-heading">
+            <div>
+              <span class="step-number">01</span>
+              <h2>Input message</h2>
+            </div>
+            <button class="sample-button" id="sample-button" type="button">
+              Use sample
+            </button>
+          </div>
+
+          <label class="sr-only" for="message-input">Message to parse</label>
+          <textarea
+            id="message-input"
+            name="message"
+            placeholder="Paste your message here…\n\nFor example: an order confirmation email, a delivery update, or a transaction SMS."
+            maxlength="10000"
+            required
+          ></textarea>
+
+          <div class="input-footer">
+            <span class="character-count" id="character-count">0 / 10,000</span>
+            <button class="submit-button" id="submit-button" type="submit">
+              <span>Parse message</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M4 10h12M11 5l5 5-5 5" />
+              </svg>
+            </button>
+          </div>
+        </form>
+
+        <section class="output-panel" aria-labelledby="output-title">
+          <div class="panel-heading">
+            <div>
+              <span class="step-number">02</span>
+              <h2 id="output-title">Parsed output</h2>
+            </div>
+            <button class="copy-button" id="copy-button" type="button" hidden>
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <rect x="6" y="6" width="10" height="10" rx="2" />
+                <path d="M13 6V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1" />
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+
+          <div class="output-content" id="output-content" aria-live="polite">
+            <div class="empty-state" id="empty-state">
+              <div class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 28 28">
+                  <path d="M7 4h10l5 5v15H7z" />
+                  <path d="M17 4v5h5M11 14h7M11 18h5" />
+                </svg>
+              </div>
+              <p>Your JSON will appear here</p>
+              <span>Submit a message to see the parsed result.</span>
+            </div>
+
+            <div class="loading-state" id="loading-state" hidden>
+              <span class="spinner" aria-hidden="true"></span>
+              <p>Inspecting message format…</p>
+            </div>
+
+            <div class="success-state" id="success-state" hidden>
+              <div class="result-label">
+                <span><span class="success-dot"></span><span id="matched-parser-label">Matched parser</span></span>
+                <span class="result-type">JSON</span>
+              </div>
+              <pre><code id="json-output">{}</code></pre>
+            </div>
+
+            <div class="error-state" id="error-state" role="alert" hidden>
+              <div class="error-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v6M12 17h.01" />
+                </svg>
+              </div>
+              <div>
+                <h3 id="error-title">Message format not recognized</h3>
+                <p id="error-message">
+                  This message is not in the intended format. Check the content
+                  and try again with a supported message.
+                </p>
+                <button id="error-action-button" type="button">Try again</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <footer>
+        <span>Messages are processed locally in this demo.</span>
+        <span>Max. 10,000 characters</span>
+      </footer>
+    </main>
+
+    <dialog class="parser-dialog" id="parser-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-shell">
+        <header class="dialog-header">
+          <div>
+            <p class="dialog-kicker">PARSER BUILDER</p>
+            <h2 id="dialog-title">Create a new parser</h2>
+          </div>
+          <button class="close-button" id="close-dialog" type="button" aria-label="Close dialog">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" /></svg>
+          </button>
+        </header>
+
+        <div class="step-progress" aria-label="Parser creation progress">
+          <div class="progress-item is-active" data-progress="1"><span>1</span>Examples</div>
+          <div class="progress-line"></div>
+          <div class="progress-item" data-progress="2"><span>2</span>Ask AI</div>
+          <div class="progress-line"></div>
+          <div class="progress-item" data-progress="3"><span>3</span>Save parser</div>
+        </div>
+
+        <section class="dialog-step" data-step="1">
+          <div class="step-copy">
+            <h3>Add example messages</h3>
+            <p>Copy messages of the same type from your phone. Add at least 2 and up to 10 so the AI can identify the pattern.</p>
+          </div>
+
+          <div class="examples-list" id="examples-list"></div>
+
+          <div class="examples-actions">
+            <span id="example-count">2 of 10 messages</span>
+            <button class="secondary-button" id="add-example" type="button"><span>+</span> Add another message</button>
+          </div>
+
+          <div class="dialog-footer">
+            <span class="privacy-note">Avoid including passwords or highly sensitive information.</span>
+            <button class="primary-button" id="generate-prompt" type="button">
+              Create AI prompt
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" /></svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="dialog-step" data-step="2" hidden>
+          <div class="step-copy">
+            <h3>Ask ChatGPT or Claude</h3>
+            <p>Copy this generated prompt, paste it into your preferred AI, then bring the parser code it creates back here.</p>
+          </div>
+
+          <div class="prompt-box">
+            <div class="prompt-toolbar">
+              <span>Generated prompt</span>
+              <button id="copy-prompt" type="button">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="6" y="6" width="10" height="10" rx="2" /><path d="M13 6V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1" /></svg>
+                <span>Copy prompt</span>
+              </button>
+            </div>
+            <textarea id="generated-prompt" readonly aria-label="Generated AI prompt"></textarea>
+          </div>
+
+          <div class="ai-links">
+            <span>Open in</span>
+            <a id="open-chatgpt" href="https://chatgpt.com/?temporary-chat=true" target="_blank" rel="noopener noreferrer">ChatGPT Temporary ↗</a>
+            <a id="open-claude" href="https://claude.ai/new?incognito=true" target="_blank" rel="noopener noreferrer">Claude Incognito ↗</a>
+          </div>
+          <p class="ai-privacy-note">The prompt is copied automatically when either link is opened. Confirm the Temporary or Incognito label before pasting.</p>
+
+          <div class="dialog-footer align-right">
+            <button class="text-button" data-back="1" type="button">Back</button>
+            <button class="primary-button" id="continue-to-code" type="button">
+              I have the parser code
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" /></svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="dialog-step" data-step="3" hidden>
+          <div class="step-copy">
+            <h3>Name and save your parser</h3>
+            <p>Paste only the JavaScript returned by the AI. We’ll test it against every example before saving.</p>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label" for="parser-name">Parser name</label>
+            <input class="text-input" id="parser-name" type="text" maxlength="60" placeholder="e.g. Bank transaction alerts" />
+          </div>
+
+          <div class="form-field code-field">
+            <div class="code-label-row">
+              <label class="field-label" for="parser-code">Parser code</label>
+              <span>JavaScript</span>
+            </div>
+            <textarea class="code-input" id="parser-code" spellcheck="false" placeholder="function parseMessage(message) {&#10;  // Return an object when matched, or null when not matched&#10;}"></textarea>
+          </div>
+
+          <div class="code-warning">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 18 17H2zM10 7v4.5M10 14.5h.01" /></svg>
+            Only save code from an AI or source you trust. Parsers run in an isolated worker and are stopped if they take too long.
+          </div>
+          <p class="form-error" id="parser-form-error" role="alert" hidden></p>
+
+          <div class="dialog-footer align-right">
+            <button class="text-button" data-back="2" type="button">Back</button>
+            <button class="primary-button" id="save-parser" type="button">
+              <span>Save parser</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-8" /></svg>
+            </button>
+          </div>
+        </section>
+      </div>
+    </dialog>
+
+    <script src="script.js"></script>
+  </body>
+</html>
